@@ -1,0 +1,173 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+{% if proveedor %}Editar{% else %}Nuevo{% endif %}
+proveedor | Campomix
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">
+        {% if proveedor %}
+            Editar proveedor
+        {% else %}
+            Registrar proveedor
+        {% endif %}
+    </h2>
+
+    <p class="text-muted">
+        Todos los campos son obligatorios.
+    </p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            <div class="row g-3">
+
+                <!-- RAZÓN SOCIAL -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Razón social *
+                    </label>
+
+                    <input
+                        type="text"
+                        name="razon_social"
+                        class="form-control"
+                        maxlength="160"
+                        minlength="3"
+                        value="{{ proveedor.razon_social or '' if proveedor else '' }}"
+                        placeholder="Nombre del proveedor"
+                        required>
+                </div>
+
+                <!-- NIT -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        NIT *
+                    </label>
+
+                    <input
+                        type="text"
+                        name="nit"
+                        class="form-control"
+                        minlength="5"
+                        maxlength="15"
+                        pattern="[0-9]{5,15}"
+                        title="El NIT debe contener entre 5 y 15 números"
+                        value="{{ proveedor.nit or '' if proveedor else '' }}"
+                        placeholder="Ej. 1234567890"
+                        required>
+
+                    <small class="text-muted">
+                        Solo números. No se permiten NIT duplicados.
+                    </small>
+                </div>
+
+                <!-- CONTACTO -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Persona de contacto *
+                    </label>
+
+                    <input
+                        type="text"
+                        name="contacto"
+                        class="form-control"
+                        maxlength="120"
+                        minlength="3"
+                        value="{{ proveedor.contacto or '' if proveedor else '' }}"
+                        placeholder="Nombre del responsable"
+                        required>
+                </div>
+
+                <!-- TELÉFONO -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Teléfono *
+                    </label>
+
+                    <input
+                        type="tel"
+                        name="telefono"
+                        class="form-control"
+                        minlength="7"
+                        maxlength="15"
+                        pattern="[0-9]{7,15}"
+                        title="Ingrese entre 7 y 15 números"
+                        value="{{ proveedor.telefono or '' if proveedor else '' }}"
+                        placeholder="Ej. 71234567"
+                        required>
+                </div>
+
+                <!-- CORREO -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Correo electrónico *
+                    </label>
+
+                    <input
+                        type="email"
+                        name="correo"
+                        class="form-control"
+                        maxlength="150"
+                        value="{{ proveedor.correo or '' if proveedor else '' }}"
+                        placeholder="proveedor@ejemplo.com"
+                        required>
+
+                    <small class="text-muted">
+                        No se permiten correos duplicados.
+                    </small>
+                </div>
+
+                <!-- DIRECCIÓN -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Dirección *
+                    </label>
+
+                    <input
+                        type="text"
+                        name="direccion"
+                        class="form-control"
+                        maxlength="255"
+                        minlength="5"
+                        value="{{ proveedor.direccion or '' if proveedor else '' }}"
+                        placeholder="Dirección del proveedor"
+                        required>
+                </div>
+
+            </div>
+
+            <!-- BOTONES -->
+            <div class="d-flex gap-2 mt-4">
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    <i class="bi bi-save"></i>
+                    {% if proveedor %}
+                        Guardar cambios
+                    {% else %}
+                        Registrar proveedor
+                    {% endif %}
+                </button>
+
+                <a href="{{ url_for('proveedores.listar') }}"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

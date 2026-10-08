@@ -1,0 +1,99 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+{% if editando %}Editar{% else %}Nueva{% endif %}
+categoría | Campomix
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">
+        <i class="bi bi-tags text-success"></i>
+
+        {% if editando %}
+            Editar Categoría
+        {% else %}
+            Registrar Categoría
+        {% endif %}
+    </h2>
+
+    <p class="text-muted">
+        Complete los datos de la categoría de productos.
+    </p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            <div class="row g-3">
+
+                <!-- NOMBRE -->
+                <div class="col-md-12">
+                    <label class="form-label fw-semibold">
+                        Nombre de la categoría *
+                    </label>
+
+                    <input type="text"
+                           name="nombre"
+                           class="form-control"
+                           maxlength="100"
+                           minlength="3"
+                           placeholder="Ej. Yogures"
+                           value="{{ categoria.nombre if categoria else '' }}"
+                           required>
+
+                    <div class="form-text">
+                        El nombre debe ser único.
+                    </div>
+                </div>
+
+                <!-- DESCRIPCIÓN -->
+                <div class="col-md-12">
+                    <label class="form-label fw-semibold">
+                        Descripción
+                    </label>
+
+                    <textarea name="descripcion"
+                              class="form-control"
+                              rows="4"
+                              maxlength="255"
+                              placeholder="Describa esta categoría...">{{ categoria.descripcion or '' if categoria else '' }}</textarea>
+
+                    <div class="form-text">
+                        Máximo 255 caracteres.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+
+                <button type="submit"
+                        class="btn btn-success">
+                    <i class="bi bi-save"></i>
+
+                    {% if editando %}
+                        Guardar cambios
+                    {% else %}
+                        Registrar categoría
+                    {% endif %}
+                </button>
+
+                <a href="{{ url_for('categorias.listar') }}"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

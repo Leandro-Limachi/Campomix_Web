@@ -1,0 +1,145 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+Control de calidad | Campomix
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">
+        <i class="bi bi-clipboard-check text-success"></i>
+        Control de Calidad de Materias Primas
+    </h2>
+
+    <p class="text-muted">
+        Evaluación y aprobación de los lotes recibidos.
+    </p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Lote</th>
+                        <th>Materia prima</th>
+                        <th>Proveedor</th>
+                        <th>Vencimiento</th>
+                        <th>Stock físico</th>
+                        <th>Calidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for l in lotes %}
+                    <tr>
+                        <td>
+                            <strong>{{ l.codigo_lote }}</strong>
+                        </td>
+
+                        <td>{{ l.materia_prima }}</td>
+
+                        <td>{{ l.proveedor or 'Sin proveedor' }}</td>
+
+                        <td>
+                            {% if l.fecha_vencimiento %}
+                                {{ l.fecha_vencimiento.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                Sin fecha
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ l.stock_fisico }} {{ l.simbolo }}
+                        </td>
+
+                        <td>
+                            {% if l.estado_calidad == 'APROBADO' %}
+                                <span class="badge bg-success">
+                                    Aprobado
+                                </span>
+                            {% elif l.estado_calidad == 'RECHAZADO' %}
+                                <span class="badge bg-danger">
+                                    Rechazado
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">
+                                    Cuarentena
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if l.estado_calidad == 'CUARENTENA'
+                                  and l.stock_fisico > 0 %}
+
+                            <div class="d-flex gap-2">
+
+                                <form method="POST"
+                                      action="{{ url_for(
+                                        'lotes_mp.cambiar_calidad',
+                                        id_lote=l.id_lote_mp
+                                      ) }}">
+                                    <input type="hidden"
+                                           name="estado"
+                                           value="APROBADO">
+
+                                    <button type="submit"
+                                            class="btn btn-success btn-sm"
+                                            onclick="return confirm(
+                                                '¿Aprobar este lote?'
+                                            )">
+                                        Aprobar
+                                    </button>
+                                </form>
+
+                                <form method="POST"
+                                      action="{{ url_for(
+                                        'lotes_mp.cambiar_calidad',
+                                        id_lote=l.id_lote_mp
+                                      ) }}">
+                                    <input type="hidden"
+                                           name="estado"
+                                           value="RECHAZADO">
+
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm(
+                                                '¿Rechazar este lote?'
+                                            )">
+                                        Rechazar
+                                    </button>
+                                </form>
+
+                            </div>
+
+                            {% else %}
+                                <span class="text-muted small">
+                                    Sin acciones
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="7"
+                            class="text-center text-muted py-4">
+                            No existen lotes registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

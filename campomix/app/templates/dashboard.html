@@ -1,0 +1,75 @@
+
+{% extends "base.html" %}
+
+{% block title %}Inicio | Campomix{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">Panel Principal</h2>
+    <p class="text-muted">
+        Bienvenido, {{ session.get('nombre') }}.
+        Aquí encontrarás el resumen general de Campomix.
+    </p>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card">
+            <i class="bi bi-truck"></i>
+            <p class="text-muted mt-3 mb-1">Proveedores</p>
+            <h3>0</h3>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card">
+            <i class="bi bi-box-seam"></i>
+            <p class="text-muted mt-3 mb-1">Materias Primas</p>
+            <h3>0</h3>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card">
+            <i class="bi bi-basket"></i>
+            <p class="text-muted mt-3 mb-1">Productos</p>
+            <h3>0</h3>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card">
+            <i class="bi bi-gear"></i>
+            <p class="text-muted mt-3 mb-1">Producciones</p>
+            <h3>0</h3>
+        </div>
+    </div>
+
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+
+                <h5 class="fw-bold">
+                    <i class="bi bi-bell"></i>
+                    Alertas del Sistema
+                </h5>
+
+                <p class="text-muted mb-0">
+                    Las alertas de inventario y vencimientos
+                    aparecerán aquí cuando implementemos
+                    los módulos correspondientes.
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

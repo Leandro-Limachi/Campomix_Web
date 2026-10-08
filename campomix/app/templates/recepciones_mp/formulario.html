@@ -1,0 +1,481 @@
+
+{% extends "base.html" %}
+
+{% block title %}Nueva recepción | Campomix{% endblock %}
+
+{% block content %}
+
+<style>
+    .recepcion-header {
+        background: linear-gradient(120deg, #155c43, #21845a);
+        border-radius: 16px;
+        color: white;
+        padding: 28px;
+    }
+
+    .recepcion-card {
+        border: none;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .seccion-titulo {
+        font-size: 16px;
+        font-weight: 700;
+        color: #18583f;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 12px;
+        margin-bottom: 22px;
+    }
+
+    .seccion-titulo i {
+        color: #f59e0b;
+        margin-right: 8px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #344054;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 9px;
+        padding: 10px 12px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #21845a;
+        box-shadow: 0 0 0 0.2rem rgba(33, 132, 90, 0.12);
+    }
+
+    .campo-obligatorio {
+        color: #e67e22;
+    }
+
+    .resumen-recepcion {
+        background: #f0f8f3;
+        border: 1px solid #d6e9dd;
+        border-radius: 12px;
+        padding: 22px;
+    }
+
+    .total-recepcion {
+        color: #155c43;
+        font-size: 29px;
+        font-weight: 800;
+    }
+
+    .btn-campomix {
+        background: #198754;
+        border-color: #198754;
+        color: white;
+        border-radius: 9px;
+        padding: 11px 22px;
+        font-weight: 600;
+    }
+
+    .btn-campomix:hover {
+        background: #146c43;
+        border-color: #146c43;
+        color: white;
+    }
+</style>
+
+<!-- ENCABEZADO -->
+<div class="recepcion-header mb-4">
+
+    <div class="d-flex align-items-center gap-3">
+
+        <div>
+            <i class="bi bi-box-arrow-in-down fs-1"></i>
+        </div>
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                Nueva recepción de materias primas
+            </h2>
+
+            <p class="mb-0 opacity-75">
+                Registre los insumos recibidos para su
+                posterior control de calidad e inventario.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+<form method="POST" id="formRecepcion">
+
+    <!-- INFORMACIÓN GENERAL -->
+    <div class="card recepcion-card shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <h5 class="seccion-titulo">
+                <i class="bi bi-building"></i>
+                Información general
+            </h5>
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Proveedor
+                        <span class="campo-obligatorio">*</span>
+                    </label>
+
+                    <select
+                        name="id_proveedor"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="">
+                            Seleccione un proveedor
+                        </option>
+
+                        {% for p in proveedores %}
+
+                        <option
+                            value="{{ p.id_proveedor }}"
+                            {% if datos.get('id_proveedor', '')|string == p.id_proveedor|string %}
+                            selected
+                            {% endif %}
+                        >
+                            {{ p.razon_social }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Almacén de destino
+                        <span class="campo-obligatorio">*</span>
+                    </label>
+
+                    <select
+                        name="id_almacen"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="">
+                            Seleccione un almacén
+                        </option>
+
+                        {% for a in almacenes %}
+
+                        <option
+                            value="{{ a.id_almacen }}"
+                            {% if datos.get('id_almacen', '')|string == a.id_almacen|string %}
+                            selected
+                            {% endif %}
+                        >
+                            {{ a.nombre }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- DATOS DE MATERIA PRIMA -->
+    <div class="card recepcion-card shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <h5 class="seccion-titulo">
+                <i class="bi bi-box-seam"></i>
+                Detalle de materia prima
+            </h5>
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Materia prima
+                        <span class="campo-obligatorio">*</span>
+                    </label>
+
+                    <select
+                        name="id_materia"
+                        id="id_materia"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="">
+                            Seleccione una materia prima
+                        </option>
+
+                        {% for m in materias %}
+
+                        <option
+                            value="{{ m.id_materia }}"
+                            data-unidad="{{ m.simbolo }}"
+                            {% if datos.get('id_materia', '')|string == m.id_materia|string %}
+                            selected
+                            {% endif %}
+                        >
+                            {{ m.codigo }} - {{ m.nombre }}
+                            ({{ m.simbolo }})
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Código de lote
+                        <span class="campo-obligatorio">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="codigo_lote"
+                        class="form-control"
+                        maxlength="70"
+                        value="{{ datos.get('codigo_lote', '') }}"
+                        placeholder="Ej. LEC-2026-001"
+                        required
+                    >
+
+                    <div class="form-text">
+                        Identificador único para la trazabilidad del lote.
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Fecha de vencimiento
+                        <span class="campo-obligatorio">*</span>
+                    </label>
+
+                    <input
+                        type="date"
+                        name="fecha_vencimiento"
+                        id="fecha_vencimiento"
+                        class="form-control"
+                        value="{{ datos.get('fecha_vencimiento', '') }}"
+                        required
+                    >
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        Cantidad recibida
+                        <span class="campo-obligatorio">*</span>
+                    </label>
+
+                    <div class="input-group">
+
+                        <input
+                            type="number"
+                            name="cantidad"
+                            id="cantidad"
+                            class="form-control"
+                            min="0.001"
+                            step="0.001"
+                            value="{{ datos.get('cantidad', '') }}"
+                            required
+                        >
+
+                        <span
+                            class="input-group-text"
+                            id="unidadCantidad"
+                        >
+                            Unidad
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        Costo unitario (Bs)
+                        <span class="campo-obligatorio">*</span>
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+                            Bs
+                        </span>
+
+                        <input
+                            type="number"
+                            name="costo_unitario"
+                            id="costo_unitario"
+                            class="form-control"
+                            min="0"
+                            step="0.0001"
+                            value="{{ datos.get('costo_unitario', '') }}"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="resumen-recepcion mb-4">
+
+        <div class="row align-items-center g-3">
+
+            <div class="col-md-7">
+
+                <h5 class="fw-bold mb-2">
+                    <i class="bi bi-calculator text-warning"></i>
+                    Resumen de recepción
+                </h5>
+
+                <p class="text-muted mb-0">
+                    El importe se calcula automáticamente
+                    según la cantidad y el costo unitario.
+                </p>
+
+            </div>
+
+            <div class="col-md-5 text-md-end">
+
+                <div class="text-muted small">
+                    Costo total estimado
+                </div>
+
+                <div class="total-recepcion">
+                    Bs <span id="totalRecepcion">0.00</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- INFORMACIÓN DEL ESTADO -->
+    <div class="alert alert-warning border-0 mb-4">
+
+        <i class="bi bi-info-circle-fill me-2"></i>
+
+        <strong>Importante:</strong>
+
+        La recepción se guardará inicialmente como
+        <strong>borrador</strong>.
+
+        No ingresará al inventario físico hasta que
+        se confirme la recepción.
+
+    </div>
+
+    <!-- BOTONES -->
+    <div class="d-flex justify-content-end gap-3 flex-wrap mb-4">
+
+        <a
+            href="{{ url_for('recepciones_mp.listar') }}"
+            class="btn btn-outline-secondary px-4"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Cancelar
+        </a>
+
+        <button
+            type="submit"
+            class="btn btn-campomix"
+        >
+            <i class="bi bi-save me-1"></i>
+            Guardar borrador
+        </button>
+
+    </div>
+
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const materia = document.getElementById("id_materia");
+    const unidad = document.getElementById("unidadCantidad");
+
+    const cantidad = document.getElementById("cantidad");
+    const costo = document.getElementById("costo_unitario");
+
+    const total = document.getElementById("totalRecepcion");
+
+    const vencimiento = document.getElementById(
+        "fecha_vencimiento"
+    );
+
+    function actualizarUnidad() {
+
+        const opcion = materia.options[materia.selectedIndex];
+
+        unidad.textContent =
+            opcion.dataset.unidad || "Unidad";
+    }
+
+    function calcularTotal() {
+
+        const cantidadValor = parseFloat(cantidad.value) || 0;
+        const costoValor = parseFloat(costo.value) || 0;
+
+        const importe = cantidadValor * costoValor;
+
+        total.textContent = importe.toLocaleString("es-BO", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    materia.addEventListener("change", actualizarUnidad);
+
+    cantidad.addEventListener("input", calcularTotal);
+    costo.addEventListener("input", calcularTotal);
+
+    const hoy = new Date();
+    const fechaLocal = new Date(
+        hoy.getTime() - hoy.getTimezoneOffset() * 60000
+    ).toISOString().slice(0, 10);
+
+    vencimiento.min = fechaLocal;
+
+    actualizarUnidad();
+    calcularTotal();
+
+});
+</script>
+
+{% endblock %}

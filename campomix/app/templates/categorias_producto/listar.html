@@ -1,0 +1,161 @@
+
+{% extends "base.html" %}
+
+{% block title %}Categorías | Campomix{% endblock %}
+
+{% block content %}
+
+<!-- ENCABEZADO -->
+<div class="d-flex justify-content-between align-items-center
+            flex-wrap gap-3 mb-4">
+
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="bi bi-tags text-success"></i>
+            Categorías de Productos
+        </h2>
+
+        <p class="text-muted mb-0">
+            Administración de categorías de productos lácteos.
+        </p>
+    </div>
+
+    <a href="{{ url_for('categorias.nueva') }}"
+       class="btn btn-success">
+        <i class="bi bi-plus-circle"></i>
+        Nueva categoría
+    </a>
+</div>
+
+<!-- TABLA -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <h5 class="fw-bold mb-3">
+            <i class="bi bi-list-ul text-warning"></i>
+            Listado de categorías
+        </h5>
+
+        <!-- BUSCADOR -->
+        <form method="GET" class="row g-2 mb-4">
+            <div class="col-md-9">
+                <input type="text"
+                       name="buscar"
+                       class="form-control"
+                       placeholder="Buscar categoría..."
+                       value="{{ busqueda }}">
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit"
+                        class="btn btn-success w-100">
+                    <i class="bi bi-search"></i>
+                    Buscar
+                </button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Productos</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for c in categorias %}
+                    <tr>
+                        <td>
+                            <strong>{{ c.nombre }}</strong>
+                        </td>
+
+                        <td>
+                            {{ c.descripcion or 'Sin descripción' }}
+                        </td>
+
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                {{ c.total_productos }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if c.activo %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i>
+                                    Activa
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-lock"></i>
+                                    Inactiva
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="d-flex gap-2">
+
+                                <!-- EDITAR -->
+                                <a href="{{ url_for(
+                                    'categorias.editar',
+                                    id_categoria=c.id_categoria
+                                ) }}"
+                                   class="btn btn-warning btn-sm"
+                                   title="Editar categoría">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <!-- ACTIVAR / DESACTIVAR -->
+                                <form method="POST"
+                                      action="{{ url_for(
+                                        'categorias.cambiar_estado',
+                                        id_categoria=c.id_categoria
+                                      ) }}"
+                                      onsubmit="return confirm(
+                                        '¿Está seguro de cambiar el estado de esta categoría?'
+                                      );">
+
+                                    {% if c.activo %}
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm"
+                                            title="Desactivar">
+                                        <i class="bi bi-lock"></i>
+                                    </button>
+                                    {% else %}
+                                    <button type="submit"
+                                            class="btn btn-outline-success btn-sm"
+                                            title="Activar">
+                                        <i class="bi bi-unlock"></i>
+                                    </button>
+                                    {% endif %}
+
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="5"
+                            class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            No se encontraron categorías.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

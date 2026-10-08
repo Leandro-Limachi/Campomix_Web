@@ -1,0 +1,131 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+{% if editando %}Editar{% else %}Nueva{% endif %}
+Materia Prima | Campomix
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">
+        {% if editando %}
+            Editar Materia Prima
+        {% else %}
+            Registrar Materia Prima
+        {% endif %}
+    </h2>
+    <p class="text-muted">
+        Complete la información del insumo.
+    </p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Código *</label>
+                    <input type="text"
+                           name="codigo"
+                           class="form-control"
+                           maxlength="40"
+                           minlength="2"
+                           pattern="[A-Za-z0-9-]{2,40}"
+                           placeholder="MP-001"
+                           value="{{ materia.codigo or '' if materia else '' }}"
+                           required>
+                    <small class="text-muted">
+                        El código debe ser único.
+                    </small>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Nombre *</label>
+                    <input type="text"
+                           name="nombre"
+                           class="form-control"
+                           minlength="3"
+                           maxlength="130"
+                           placeholder="Ej. Leche cruda"
+                           value="{{ materia.nombre or '' if materia else '' }}"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Unidad de medida *
+                    </label>
+                    <select name="id_unidad"
+                            class="form-select"
+                            required>
+                        <option value="">
+                            Seleccione una unidad
+                        </option>
+
+                        {% for u in unidades %}
+                        <option value="{{ u.id_unidad }}"
+                            {% if materia and
+                            materia.id_unidad|string == u.id_unidad|string %}
+                                selected
+                            {% endif %}>
+                            {{ u.nombre }} ({{ u.simbolo }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Stock mínimo *
+                    </label>
+                    <input type="number"
+                           name="stock_minimo"
+                           class="form-control"
+                           min="0"
+                           step="0.001"
+                           placeholder="Ej. 100"
+                           value="{{ materia.stock_minimo if materia else '0' }}"
+                           required>
+                    <small class="text-muted">
+                        Cantidad para generar alertas de stock bajo.
+                    </small>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">
+                        Descripción
+                    </label>
+                    <textarea name="descripcion"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Descripción del insumo...">{{ materia.descripcion or '' if materia else '' }}</textarea>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i>
+                    {% if editando %}
+                        Guardar cambios
+                    {% else %}
+                        Registrar materia prima
+                    {% endif %}
+                </button>
+
+                <a href="{{ url_for('materias_primas.listar') }}"
+                   class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

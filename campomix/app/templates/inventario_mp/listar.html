@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario MP | Campomix{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">
+        <i class="bi bi-boxes text-success"></i>
+        Inventario de Materias Primas
+    </h2>
+
+    <p class="text-muted">
+        Consulta de existencias y disponibilidad de insumos.
+    </p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Materia prima</th>
+                        <th>Estado</th>
+                        <th>Stock físico</th>
+                        <th>Disponible</th>
+                        <th>Cuarentena</th>
+                        <th>Rechazado</th>
+                        <th>Vencido</th>
+                        <th>Stock mínimo</th>
+                        <th>Alerta</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for m in inventario %}
+                    <tr>
+                        <td>{{ m.codigo }}</td>
+
+                        <td>
+                            <strong>{{ m.nombre }}</strong>
+                        </td>
+
+                        <td>
+                            {{ m.stock_fisico }} {{ m.simbolo }}
+                        </td>
+
+                        <td class="text-success fw-bold">
+                            {{ m.disponible }} {{ m.simbolo }}
+                        </td>
+
+                        <td class="text-warning">
+                            {{ m.cuarentena }} {{ m.simbolo }}
+                        </td>
+
+                        <td class="text-danger">
+                            {{ m.rechazado }} {{ m.simbolo }}
+                        </td>
+
+                        <td>
+                            {{ m.vencido }} {{ m.simbolo }}
+                        </td>
+
+                        <td>
+                            {{ m.stock_minimo }} {{ m.simbolo }}
+                        </td>
+
+                        <td>
+                            {% if m.disponible <= 0 %} <span class="badge bg-danger">
+                                Sin stock disponible
+                                </span>
+                                {% elif m.disponible < m.stock_minimo %} <span class="badge bg-warning text-dark">
+                                    Stock bajo
+                                    </span>
+                                    {% elif m.disponible == m.stock_minimo %}
+                                    <span class="badge bg-warning text-dark">
+                                        En el mínimo
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-success">
+                                        Normal
+                                    </span>
+                                    {% endif %}
+                        </td>
+
+
+                        <td>
+                            {% if m.activo == 1 %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i>
+                                Activa
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-lock"></i>
+                                Inactiva
+                            </span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            No existen materias primas registradas.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
