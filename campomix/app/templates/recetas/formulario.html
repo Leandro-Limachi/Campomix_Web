@@ -1,0 +1,791 @@
+
+{% extends "base.html" %}
+
+{% block title %}Receta de fabricación | Campomix{% endblock %}
+
+{% block content %}
+
+<style>
+    .receta-hero {
+        background: linear-gradient(120deg, #126c43, #23a565);
+        border-radius: 18px;
+        padding: 28px;
+        color: white;
+    }
+
+    .receta-card {
+        background: #fff;
+        border: 1px solid #e7eee9;
+        border-radius: 16px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+    }
+
+    .receta-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #195c3c;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .receta-icon {
+        background: #e7f6ed;
+        color: #198754;
+        padding: 10px 13px;
+        border-radius: 11px;
+    }
+
+    .receta-label {
+        font-weight: 600;
+        color: #42564a;
+        margin-bottom: 7px;
+    }
+
+    .receta-input {
+        border-radius: 10px;
+        padding: 11px;
+    }
+
+    .receta-input:focus {
+        border-color: #22a263;
+        box-shadow: 0 0 0 .2rem rgba(34, 162, 99, .12);
+    }
+
+    .receta-tabla thead th {
+        background: #f3f8f5;
+        color: #486153;
+        padding: 14px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .receta-tabla td {
+        padding: 12px;
+        vertical-align: middle;
+    }
+
+    .receta-tabla tbody tr:hover {
+        background: #f9fcfa;
+    }
+
+    .btn-agregar {
+        border: 1px dashed #1c9a5b;
+        color: #16844d;
+        background: #f2fbf5;
+        border-radius: 11px;
+        padding: 12px 18px;
+        font-weight: 600;
+    }
+
+    .btn-agregar:hover {
+        background: #e1f4e7;
+        color: #126b3d;
+    }
+
+    .receta-resumen {
+        background: #fff8eb;
+        border: 1px solid #ffe5b4;
+        border-radius: 13px;
+        padding: 20px;
+    }
+
+    .receta-actions {
+        background: #f6f9f7;
+        padding: 20px;
+        border-radius: 13px;
+    }
+
+    .receta-badge {
+        padding: 9px 14px;
+        border-radius: 20px;
+    }
+
+    .receta-info {
+        background: #f1f8f3;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .receta-hero {
+            padding: 20px;
+        }
+
+        .receta-hero h2 {
+            font-size: 24px;
+        }
+
+        .receta-card {
+            padding: 16px !important;
+        }
+    }
+</style>
+
+<!-- ENCABEZADO -->
+<div class="receta-hero mb-4">
+
+    <div class="d-flex justify-content-between
+                align-items-center flex-wrap gap-3">
+
+        <div>
+            <div class="small opacity-75 mb-2">
+                PRODUCTOS / GESTIÓN DE RECETAS
+            </div>
+
+            <h2 class="fw-bold mb-2">
+                <i class="bi bi-journal-text me-2"></i>
+                Receta de fabricación
+            </h2>
+
+            <p class="mb-0 opacity-75">
+                {{ producto.nombre }} · {{ producto.codigo }}
+            </p>
+        </div>
+
+        <a href="{{ url_for('productos.listar') }}"
+           class="btn btn-light fw-semibold">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Volver a productos
+        </a>
+
+    </div>
+</div>
+
+<!-- INFORMACIÓN DEL PRODUCTO -->
+<div class="receta-card p-4 mb-4">
+
+    <div class="d-flex align-items-center gap-3">
+
+        <div class="receta-icon fs-3">
+            <i class="bi bi-box-seam"></i>
+        </div>
+
+        <div>
+            <h5 class="fw-bold mb-1">
+                {{ producto.nombre }}
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Código: {{ producto.codigo }}
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ESTADO DE LA RECETA -->
+{% if receta %}
+
+<div class="receta-card p-4 mb-4">
+
+    <div class="d-flex justify-content-between
+                align-items-center flex-wrap gap-3">
+
+        <div>
+            <div class="text-muted small mb-2">
+                Estado actual
+            </div>
+
+            {% if receta.estado == 'VIGENTE' %}
+
+                <span class="badge bg-success receta-badge">
+                    <i class="bi bi-check-circle me-1"></i>
+                    VIGENTE
+                </span>
+
+            {% elif receta.estado == 'BORRADOR' %}
+
+                <span class="badge bg-warning text-dark receta-badge">
+                    <i class="bi bi-pencil-square me-1"></i>
+                    BORRADOR
+                </span>
+
+            {% else %}
+
+                <span class="badge bg-secondary receta-badge">
+                    <i class="bi bi-pause-circle me-1"></i>
+                    INACTIVA
+                </span>
+
+            {% endif %}
+        </div>
+
+        <div>
+            <div class="text-muted small">
+                Versión
+            </div>
+
+            <h5 class="fw-bold mb-0">
+                {{ receta.version }}
+            </h5>
+        </div>
+
+        <!-- BOTONES DE ESTADO -->
+        <div class="d-flex gap-2 flex-wrap">
+
+            {% if receta.estado == 'BORRADOR' %}
+
+            <form method="POST"
+                  action="{{ url_for(
+                    'recetas.cambiar_estado',
+                    id_producto=producto.id_producto
+                  ) }}"
+                  onsubmit="return confirm('¿Publicar esta receta?');">
+
+                <input type="hidden"
+                       name="estado"
+                       value="VIGENTE">
+
+                <button type="submit"
+                        class="btn btn-success">
+
+                    <i class="bi bi-check-circle me-1"></i>
+                    Publicar receta
+                </button>
+
+            </form>
+
+            <form method="POST"
+                  action="{{ url_for(
+                    'recetas.cambiar_estado',
+                    id_producto=producto.id_producto
+                  ) }}">
+
+                <input type="hidden"
+                       name="estado"
+                       value="INACTIVA">
+
+                <button type="submit"
+                        class="btn btn-outline-secondary">
+                    Desactivar
+                </button>
+
+            </form>
+
+            {% elif receta.estado == 'VIGENTE' %}
+
+            <form method="POST"
+                  action="{{ url_for(
+                    'recetas.cambiar_estado',
+                    id_producto=producto.id_producto
+                  ) }}"
+                  onsubmit="return confirm('¿Desactivar esta receta?');">
+
+                <input type="hidden"
+                       name="estado"
+                       value="INACTIVA">
+
+                <button type="submit"
+                        class="btn btn-outline-danger">
+
+                    <i class="bi bi-pause-circle me-1"></i>
+                    Desactivar receta
+                </button>
+
+            </form>
+
+            {% else %}
+
+            <form method="POST"
+                  action="{{ url_for(
+                    'recetas.cambiar_estado',
+                    id_producto=producto.id_producto
+                  ) }}">
+
+                <input type="hidden"
+                       name="estado"
+                       value="BORRADOR">
+
+                <button type="submit"
+                        class="btn btn-warning">
+
+                    <i class="bi bi-pencil-square me-1"></i>
+                    Pasar a borrador
+                </button>
+
+            </form>
+
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+{% set editable = not receta or receta.estado == 'BORRADOR' %}
+
+<!-- FORMULARIO PRINCIPAL -->
+<form method="POST" id="formReceta">
+
+    <!-- INFORMACIÓN GENERAL -->
+    <div class="receta-card p-4 mb-4">
+
+        <div class="receta-section mb-4">
+
+            <span class="receta-icon">
+                <i class="bi bi-info-circle"></i>
+            </span>
+
+            Información de fabricación
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+
+                <label class="receta-label">
+                    Rendimiento base *
+                </label>
+
+                <div class="input-group">
+
+                    <input type="number"
+                           name="cantidad_base"
+                           id="cantidadBase"
+                           class="form-control receta-input"
+                           min="0.001"
+                           step="0.001"
+                           max="999999999999999.999"
+                           placeholder="Ej. 100"
+                           value="{{ receta.cantidad_base if receta else '' }}"
+                           required
+                           {% if not editable %}disabled{% endif %}>
+
+                    <span class="input-group-text">
+                        {{ producto.unidad if producto.unidad is defined
+                           else 'Unidad' }}
+                    </span>
+
+                </div>
+
+                <div class="form-text">
+                    Cantidad de producto obtenido con esta receta.
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="receta-label">
+                    Observaciones
+                </label>
+
+                <textarea name="observacion"
+                          class="form-control receta-input"
+                          rows="3"
+                          placeholder="Indicaciones adicionales..."
+                          {% if not editable %}disabled{% endif %}>{{ receta.observacion or '' if receta else '' }}</textarea>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- INGREDIENTES -->
+    <div class="receta-card p-4 mb-4">
+
+        <div class="d-flex justify-content-between
+                    align-items-center flex-wrap gap-2 mb-4">
+
+            <div class="receta-section">
+
+                <span class="receta-icon">
+                    <i class="bi bi-droplet-half"></i>
+                </span>
+
+                Materias primas
+            </div>
+
+            <span class="badge bg-success-subtle text-success px-3 py-2">
+
+                <span id="contadorIngredientes">0</span>
+                ingredientes
+
+            </span>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table receta-tabla align-middle">
+
+                <thead>
+                    <tr>
+                        <th style="width:55%">
+                            Materia prima
+                        </th>
+
+                        <th style="width:30%">
+                            Cantidad
+                        </th>
+
+                        <th style="width:15%"
+                            class="text-center">
+                            Acción
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody id="tablaIngredientes">
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% if editable %}
+
+        <button type="button"
+                class="btn btn-agregar w-100"
+                id="btnAgregar">
+
+            <i class="bi bi-plus-circle me-2"></i>
+            Agregar materia prima
+
+        </button>
+
+        {% endif %}
+
+        <div class="form-text mt-3">
+            Las cantidades deben corresponder al rendimiento
+            base indicado.
+        </div>
+
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="receta-resumen mb-4">
+
+        <div class="d-flex align-items-center gap-3">
+
+            <i class="bi bi-clipboard-check fs-2 text-warning"></i>
+
+            <div>
+
+                <h6 class="fw-bold mb-1">
+                    Resumen de la receta
+                </h6>
+
+                <p class="mb-0 small text-muted">
+                    Ingredientes registrados:
+                    <strong id="resumenIngredientes">0</strong>
+                </p>
+
+                <p class="mb-0 small text-muted">
+                    Verifique las cantidades antes de guardar.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- BOTONES -->
+    {% if editable %}
+
+    <div class="receta-actions d-flex justify-content-end
+                flex-wrap gap-2 mb-4">
+
+        <a href="{{ url_for('productos.listar') }}"
+           class="btn btn-outline-secondary px-4">
+            Cancelar
+        </a>
+
+        <button type="submit"
+                class="btn btn-success px-4">
+
+            <i class="bi bi-save me-1"></i>
+            Guardar receta
+
+        </button>
+
+    </div>
+
+    {% else %}
+
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-1"></i>
+        Esta receta se encuentra en modo consulta.
+        Para editarla, debe estar en estado BORRADOR.
+    </div>
+
+    {% endif %}
+
+</form>
+
+<!-- PLANTILLA PARA AGREGAR INGREDIENTES -->
+<template id="plantillaIngrediente">
+
+    <tr>
+
+        <td>
+
+            <select name="id_materia[]"
+                    class="form-select receta-input materia-select"
+                    required>
+
+                <option value="">
+                    Seleccione una materia prima
+                </option>
+
+                {% for m in materias %}
+
+                <option value="{{ m.id_materia }}"
+                        data-unidad="{{ m.simbolo }}">
+
+                    {{ m.codigo }} - {{ m.nombre }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </td>
+
+        <td>
+
+            <div class="input-group">
+
+                <input type="number"
+                       name="cantidad[]"
+                       class="form-control receta-input cantidad-input"
+                       min="0.001"
+                       step="0.001"
+                       max="999999999999999.999"
+                       placeholder="0.000"
+                       required>
+
+                <span class="input-group-text unidad-label">
+                    -
+                </span>
+
+            </div>
+
+        </td>
+
+        <td class="text-center">
+
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm btn-quitar"
+                    title="Quitar ingrediente">
+
+                <i class="bi bi-trash"></i>
+
+            </button>
+
+        </td>
+
+    </tr>
+
+</template>
+
+<!-- DATOS DE JINJA PARA JAVASCRIPT -->
+<script id="datosReceta" type="application/json">
+{
+    "editable": {{ editable | tojson }},
+    "detalles": {{ detalles | tojson }}
+}
+</script>
+
+<!-- JAVASCRIPT -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ELEMENTOS
+    const tabla = document.getElementById("tablaIngredientes");
+    const plantilla = document.getElementById("plantillaIngrediente");
+    const btnAgregar = document.getElementById("btnAgregar");
+    const formulario = document.getElementById("formReceta");
+
+    // OBTENER DATOS GENERADOS POR FLASK
+    const datosReceta = JSON.parse(
+        document.getElementById("datosReceta").textContent
+    );
+
+    const editable = datosReceta.editable;
+    const detallesExistentes = datosReceta.detalles;
+
+    // ACTUALIZAR CONTADOR
+    function actualizarContador() {
+
+        const total = tabla.querySelectorAll("tr").length;
+
+        document.getElementById("contadorIngredientes")
+            .textContent = total;
+
+        document.getElementById("resumenIngredientes")
+            .textContent = total;
+    }
+
+    // ACTUALIZAR UNIDAD
+    function actualizarUnidad(fila) {
+
+        const select = fila.querySelector(".materia-select");
+
+        const opcion = select.options[select.selectedIndex];
+
+        const unidad = opcion
+            ? opcion.getAttribute("data-unidad")
+            : null;
+
+        fila.querySelector(".unidad-label").textContent =
+            unidad || "-";
+    }
+
+    // AGREGAR INGREDIENTE
+    function agregarIngrediente(idMateria = "", cantidad = "") {
+
+        const fragmento = plantilla.content.cloneNode(true);
+        const fila = fragmento.querySelector("tr");
+
+        const select = fila.querySelector(".materia-select");
+
+        const input = fila.querySelector(".cantidad-input");
+
+        const botonQuitar = fila.querySelector(".btn-quitar");
+
+        // ASIGNAR DATOS EXISTENTES
+        if (idMateria !== "") {
+            select.value = String(idMateria);
+        }
+
+        if (cantidad !== "") {
+            input.value = String(cantidad);
+        }
+
+        // CAMBIAR UNIDAD
+        select.addEventListener("change", function () {
+            actualizarUnidad(fila);
+        });
+
+        // QUITAR INGREDIENTE
+        botonQuitar.addEventListener("click", function () {
+
+            fila.remove();
+
+            actualizarContador();
+        });
+
+        // BLOQUEAR EDICIÓN
+        if (!editable) {
+
+            select.disabled = true;
+            input.disabled = true;
+            botonQuitar.disabled = true;
+        }
+
+        // AGREGAR FILA
+        tabla.appendChild(fila);
+
+        actualizarUnidad(fila);
+
+        actualizarContador();
+    }
+
+    // CARGAR INGREDIENTES GUARDADOS
+    if (detallesExistentes.length > 0) {
+
+        detallesExistentes.forEach(function (detalle) {
+
+            agregarIngrediente(
+                detalle.id_materia,
+                detalle.cantidad
+            );
+
+        });
+
+    } else if (editable) {
+
+        agregarIngrediente();
+    }
+
+    // BOTÓN AGREGAR
+    if (btnAgregar) {
+
+        btnAgregar.addEventListener("click", function () {
+
+            agregarIngrediente();
+        });
+    }
+
+    // VALIDAR FORMULARIO
+    formulario.addEventListener("submit", function (evento) {
+
+        if (!editable) {
+
+            evento.preventDefault();
+            return;
+        }
+
+        const filas = tabla.querySelectorAll("tr");
+
+        // AL MENOS UN INGREDIENTE
+        if (filas.length === 0) {
+
+            evento.preventDefault();
+
+            alert("Debe agregar al menos una materia prima.");
+
+            return;
+        }
+
+        const seleccionadas = new Set();
+
+        for (const fila of filas) {
+
+            const select = fila.querySelector(".materia-select");
+
+            const cantidad = fila.querySelector(".cantidad-input");
+
+            // VALIDAR MATERIA PRIMA
+            if (!select.value) {
+
+                evento.preventDefault();
+
+                alert("Seleccione una materia prima en cada fila.");
+
+                select.focus();
+
+                return;
+            }
+
+            // VALIDAR DUPLICADOS
+            if (seleccionadas.has(select.value)) {
+
+                evento.preventDefault();
+
+                alert("No puede repetir la misma materia prima.");
+
+                select.focus();
+
+                return;
+            }
+
+            seleccionadas.add(select.value);
+
+            // VALIDAR CANTIDAD
+            if (!cantidad.value || Number(cantidad.value) <= 0) {
+
+                evento.preventDefault();
+
+                alert("Ingrese una cantidad mayor que cero.");
+
+                cantidad.focus();
+
+                return;
+            }
+        }
+
+    });
+
+});
+</script>
+
+{% endblock %}
