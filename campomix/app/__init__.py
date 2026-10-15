@@ -16,6 +16,9 @@ from app.controllers.recepcion_mp_controller import recepcion_mp_bp
 from app.controllers.lote_mp_controller import lote_mp_bp
 from app.controllers.inventario_mp_controller import inventario_mp_bp
 from app.controllers.categoria_producto_controller import categoria_producto_bp
+from app.controllers.producto_controller import producto_bp
+from app.controllers.receta_controller import receta_bp
+
 
 
 
@@ -46,6 +49,8 @@ def create_app():
     app.register_blueprint(lote_mp_bp)
     app.register_blueprint(inventario_mp_bp)
     app.register_blueprint(categoria_producto_bp)
+    app.register_blueprint(producto_bp)
+    app.register_blueprint(receta_bp)
 
     # Página principal
     @app.route("/")
